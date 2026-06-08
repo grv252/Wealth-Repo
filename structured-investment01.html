@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Structured Investment — Payoff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-0:#000;--ink-1:#111114;--ink-3:#2a2a31;--ink-4:#4a4a55;--ink-5:#6b6b78;
+    --ink-6:#9a9aa6;--ink-7:#c8c8d0;--ink-8:#e6e6ec;--ink-9:#f1f1f4;
+    --pink:#e2015b;--pink-soft:#ffeaf2;--lime:#cddd00;--lime-soft:#f6fac2;
+    --blue:#334fa4;--blue-ink:#1f3478;--blue-soft:#e6ecfa;--teal:#0d8a8a;--teal-soft:#d8f0f0;
+    --white:#fff;--ok:#1e8a5a;--ok-soft:#e3f5ec;--danger:#c8313a;--danger-soft:#fadcde;
+    --amber:#b7791f;--amber-soft:#fdf0d8;--green-i:#1a7a4a;--green-i-soft:#dff3e8;
+    --r-xs:4px;--r-md:10px;--r-lg:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Poppins',-apple-system,sans-serif;background:transparent;color:var(--ink-1);
+    font-size:13px;padding:14px;display:flex;flex-direction:column;gap:14px}
+  .num{font-family:'JetBrains Mono',monospace;font-feature-settings:"tnum";font-variant-numeric:tabular-nums}
+  .panel{background:#fff;border:1px solid var(--ink-8);border-radius:var(--r-lg);overflow:hidden}
+  .panel-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 17px;
+    border-bottom:1px solid var(--ink-9);gap:12px}
+  .panel-hd h3{font-size:13px;font-weight:600;color:var(--ink-1)}
+  .panel-bd{padding:15px 17px}
+  .meta{font-size:11px;color:var(--ink-5);display:flex;align-items:center;gap:6px}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+  .tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.07em;
+    text-transform:uppercase;padding:3px 7px;border-radius:var(--r-xs);background:var(--ink-9);color:var(--ink-3)}
+  .tag.green-i{background:var(--green-i-soft);color:var(--green-i)}
+  .mrow{display:grid;gap:1px;background:var(--ink-8);border-radius:var(--r-md);overflow:hidden;margin-bottom:15px}
+  .mcell{background:#fff;padding:12px 14px}
+  .mcell .pl{font-size:10px;color:var(--ink-5);text-transform:uppercase;letter-spacing:.04em}
+  .mcell .pv{font-size:18px;font-weight:700;margin-top:3px}
+  .mcell .pd{font-size:11px;margin-top:2px}
+  .up{color:var(--ok)}.down{color:var(--pink)}
+  .terms{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}
+  .shariah{background:var(--green-i-soft);border:1px solid #b5dcc6;border-radius:var(--r-md);
+    padding:11px 13px;margin-bottom:14px;display:flex;gap:10px}
+  .shariah .si{font-size:18px}.shariah .st{font-size:11.5px;color:var(--green-i);line-height:1.5}.shariah .st b{font-weight:600}
+  .cpn{display:flex;margin-top:4px;position:relative}
+  .cpn-step{flex:1;text-align:center;position:relative;padding-top:22px}
+  .cpn-step::before{content:"";position:absolute;top:6px;left:0;right:0;height:2px;background:var(--ink-8)}
+  .cpn-step:first-child::before{left:50%}.cpn-step:last-child::before{right:50%}
+  .cpn-dot{position:absolute;top:2px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;
+    background:var(--blue);border:2px solid #fff;box-shadow:0 0 0 1px var(--blue)}
+  .cpn-dot.paid{background:var(--ok);box-shadow:0 0 0 1px var(--ok)}
+  .cpn-d{font-size:10px;color:var(--ink-5)}.cpn-v{font-size:11px;font-weight:600;margin-top:1px}
+  .perf{width:100%;border-collapse:collapse}
+  .perf th{font-size:10px;color:var(--ink-5);text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:6px 8px;font-weight:600;border-bottom:1px solid var(--ink-8)}
+  .perf th:first-child{text-align:left}
+  .perf td{font-size:12px;text-align:right;padding:8px;border-bottom:1px solid var(--ink-9)}
+  .perf td:first-child{text-align:left;font-weight:500}
+  .alloc-row{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+  .alloc-nm{font-size:11.5px;width:120px;flex-shrink:0;color:var(--ink-3)}
+  .alloc-bar{flex:1;height:8px;background:var(--ink-9);border-radius:4px;overflow:hidden}.alloc-bar i{display:block;height:100%}
+  .alloc-pct{font-size:11.5px;font-weight:600;width:42px;text-align:right}
+  .holding{display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--ink-9)}
+  .scenario{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .scen{border:1px solid var(--ink-8);border-radius:var(--r-md);padding:12px}
+  .scen.up-s{border-left:3px solid var(--ok)}.scen.dn-s{border-left:3px solid var(--amber)}
+  .scen-h{font-size:11px;font-weight:700;margin-bottom:5px}.scen-b{font-size:11px;color:var(--ink-4);line-height:1.5}
+  .ladder{width:100%;border-collapse:collapse}
+  .ladder th{font-size:10px;color:var(--ink-5);text-transform:uppercase;padding:7px 10px;text-align:center;border-bottom:1px solid var(--ink-8);font-weight:600}
+  .ladder th:first-child{text-align:left}
+  .ladder td{font-size:12.5px;padding:9px 10px;text-align:center;border-bottom:1px solid var(--ink-9)}
+  .ladder td:first-child{text-align:left;font-weight:500}
+  .ladder td.best{background:var(--lime-soft);font-weight:700;color:#5e6700}
+  .split-bar{display:flex;height:30px;border-radius:8px;overflow:hidden;margin:8px 0}
+  .split-bar .sp{display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600}
+  .benefit-chart{display:flex;align-items:flex-end;gap:6px;height:90px;margin-top:8px}
+  .bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bcol .bar{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--teal),#5cc)}
+  .bcol .bl{font-size:9px;color:var(--ink-5)}
+  .divs{display:flex;align-items:flex-end;gap:8px;height:100px;margin-top:6px}
+  .dcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .dcol .bar{width:100%;border-radius:3px 3px 0 0;background:var(--green-i)}
+  .dcol .dv{font-size:10px;font-weight:600;color:var(--green-i)}.dcol .dl{font-size:9.5px;color:var(--ink-5)}
+</style>
+</head><body>
+
+<div class="panel"><div class="panel-hd"><h3>Underlying — FTSE Bursa Malaysia KLCI</h3>
+  <div class="meta"><span class="live-dot"></span> Live · 09:14 MYT</div></div>
+  <div class="panel-bd">
+    <div class="mrow" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="mcell"><div class="pl">Current Level</div><div class="pv num" id="klci">1,623.45</div><div class="pd up num">▲ +0.79%</div></div>
+      <div class="mcell"><div class="pl">Strike / Initial</div><div class="pv num">1,600.00</div><div class="pd num" style="color:var(--ink-5)">Set at launch</div></div>
+      <div class="mcell"><div class="pl">vs Strike</div><div class="pv up num">+1.47%</div><div class="pd up">Autocall zone</div></div>
+    </div></div></div>
+<div class="panel"><div class="panel-hd"><h3>Payoff Structure</h3><span class="tag">AUTOCALLABLE</span></div>
+  <div class="panel-bd">
+  <svg viewBox="0 0 560 230" style="width:100%;height:auto">
+    <line x1="50" y1="20" x2="50" y2="195" stroke="#c8c8d0"/><line x1="50" y1="125" x2="540" y2="125" stroke="#c8c8d0"/>
+    <rect x="50" y="20" width="120" height="175" fill="#fadcde" opacity=".5"/><rect x="170" y="20" width="140" height="175" fill="#fdf0d8" opacity=".6"/><rect x="310" y="20" width="230" height="175" fill="#e3f5ec" opacity=".7"/>
+    <line x1="170" y1="20" x2="170" y2="200" stroke="#c8313a" stroke-width="1.3" stroke-dasharray="4 3"/><line x1="310" y1="20" x2="310" y2="200" stroke="#334fa4" stroke-width="1.3" stroke-dasharray="4 3"/>
+    <line x1="345" y1="20" x2="345" y2="200" stroke="#000" stroke-width="1.6"/>
+    <polyline points="50,180 170,148 170,110 310,110 310,68 540,68" fill="none" stroke="#e2015b" stroke-width="2.6" stroke-linejoin="round"/>
+    <circle cx="345" cy="68" r="5" fill="#e2015b"/>
+    <text x="110" y="210" font-size="10" fill="#6b6b78" text-anchor="middle">Bearish</text><text x="240" y="210" font-size="10" fill="#6b6b78" text-anchor="middle">Sideways</text><text x="425" y="210" font-size="10" fill="#6b6b78" text-anchor="middle">Bullish → Autocall</text>
+    <text x="170" y="15" font-size="9" fill="#c8313a" text-anchor="middle">65% Barrier</text><text x="310" y="15" font-size="9" fill="#334fa4" text-anchor="middle">100% Strike</text>
+    <text x="350" y="58" font-size="9" fill="#000">KLCI now</text></svg>
+  <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--ink-4);flex-wrap:wrap">
+    <span>🟩 Above strike → autocall + 12% p.a.</span><span>🟧 Between → capital returned</span><span>🟥 Below 65% → capital at risk</span></div>
+  </div></div>
+<script>setInterval(()=>{const k=document.getElementById("klci");if(k){const v=1623.45+(Math.random()-.45)*1.4;k.textContent=v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}},2200);</script>
+</body></html>
